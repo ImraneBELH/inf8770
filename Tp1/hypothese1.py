@@ -30,7 +30,7 @@ y_LZW = []
 y_plage = []
 y_mess = []
 
-for i in range(30):
+for i in range(len(MAX_ALPHABET_POSSIBLE)):
     messages.append(random_string(MAX_ALPHABET_POSSIBLE[1:i+2]))
     x.append(i)
 
@@ -48,6 +48,7 @@ for i in messages:
 time_plage = time.time() - time_plage
 
 time_lzw = time.time()
+iter =0
 # Codage LZW:
 for i in messages:
     _ , lenLZW = codageLZW(i)
