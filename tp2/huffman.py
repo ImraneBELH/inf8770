@@ -87,3 +87,12 @@ class HuffmanCoding():
         #print("Longueur = {0}".format(longueur))
         #print("Longueur originale = {0}".format(longueurOriginale))
         return MessageCode
+
+    def decompress(dictionary, text):
+        res = ""
+        while text:
+            for k in dictionary:
+                if text.startswith(k):
+                    res += dictionary[k]
+                    text = text[len(k):]
+        return res
