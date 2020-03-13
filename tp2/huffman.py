@@ -92,6 +92,7 @@ class HuffmanCoding():
     #source: https://stackoverflow.com/questions/33089660/decoding-a-huffman-code-with-a-dictionary
     def decompress(dictionary, text):
         res = ""
+        text = "".join(text)
         while text:
             for k in dictionary:
                 if text.startswith(k):
