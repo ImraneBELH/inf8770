@@ -21,10 +21,10 @@ class RLE():
 
         dictsymb.sort()
         dictionnaire = np.transpose([dictsymb, dictbin])
-        print(dictionnaire)
+        #print(dictionnaire)
 
         i = 0;
-        MessageCode = []
+        MessageCode = ""
         longueur = 0
         while i < len(Message):
             carac = Message[i]  # caractere qui sera codé
@@ -38,8 +38,9 @@ class RLE():
             # Codage à l'aide du dictionnaire
             coderepetition = "{:b}".format(repetition - 1).zfill(compteur)
             codebinaire = dictbin[dictsymb.index(carac)]
-            MessageCode += [coderepetition, codebinaire]
+            MessageCode += coderepetition + codebinaire
             longueur += len(codebinaire) + len(coderepetition)
+        return MessageCode
 
 
     #source : https://exercism.io/tracks/python/exercises/run-length-encoding/solutions/b9efc25fffb046dba96b3705fe3c7ee7

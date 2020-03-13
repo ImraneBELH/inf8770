@@ -1,17 +1,98 @@
 import numpy as np
 
-def blocks(image):
-    image = np.array(image)
-    m = int(len(image)/ 8)
-    n = int(len(image[0])/8)
-    im = np.zeros((m,n), dtype=object)
+# def blocks(image):
+#     image = np.array(image)
+#     out = []
+#
+#     m = int(len(image)/ 8)
+#     n = int(len(image[0])/8)
+#
+#     for i in range(m):
+#         for j in range(n):
+#             out.append(image[i:i+8, j:j+8,:])
+#     return np.array(out)
 
-    for i in range(m):
-        for j in range(n):
-            im[i,j] = image[i:i+8, j:j+8,:]
-    return im
+def blocks(image):
+
+    image = np.array(image)
+    out = []
+
+    m = image.shape[0]
+    n = image.shape[1]
+
+    for row in range(0, m - 8 + 1, 8):
+        for column in range(0,n - 8 + 1, 8):
+            out.append(image[row:row+8,column:column+8])
+    return np.array(out)
 
 def zigzag(block):
+    est = True
+    south = False
+    west = False
+    north = False
+
+    stack_y = []
+    stack_cb = []
+    stack_cr = []
+
+    i = 0
+    j = 0
+
+    stack_y.append(block[0, 0][0])
+    stack_cb.append(block[0, 0][1])
+    stack_cr.append(block[0, 0][2])
+
+    while not(i == 7 and j == 7):
+        if est:
+            i = i + 1
+        if west:
+            i = i - 1
+        if south:
+            j = j + 1
+        if north:
+            j = j - 1
+
+        stack_y.append(block[j, i][0])
+        stack_cb.append(block[j, i][1])
+        stack_cr.append(block[j, i][2])
+
+        if i == 0 and j != 7:
+            if not west:
+                est = True
+                south = False
+                north = True
+            else:
+                west = False
+            continue
+        if j == 0:
+            if not north :
+                est = False
+                west = True
+                south = True
+            else:
+                north = False
+                continue
+        if j == 7:
+            if south:
+                west = False
+                est = True
+                south = False
+                north = False
+            else:
+                north = True
+            continue
+
+        if i == 7 and j != 0:
+            if est:
+                est = False
+                north = False
+                south = True
+            else:
+                west = True
+    return [stack_y, stack_cb, stack_cr]
+
+
+def zigzag_invert(block):
     est = True
     south = False
     west = False
@@ -31,7 +112,7 @@ def zigzag(block):
         if north:
             j = j - 1
 
-        stack.append(block[j, i])
+        block[j, i] = stack.pop()
 
         if i == 0 and j != 7:
             if not west:
