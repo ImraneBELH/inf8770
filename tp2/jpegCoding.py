@@ -4,6 +4,7 @@ import numpy as np
 from utils import *
 from huffman import HuffmanCoding
 from rle import *
+from decimal import *
 import scipy.fftpack as dctpack
 
 
@@ -63,6 +64,7 @@ print(sys.getsizeof(blocs))
 
 jpegImage = []
 
+zigzag_string = []
 
 for bloc in blocs:
     #Etape 4 qunatification:
@@ -71,21 +73,31 @@ for bloc in blocs:
     bloc[:, :, 2] = np.round(np.divide(bloc[:, :, 2], QUANT))
 
     # Etape 5 zigzag
-    bloc = zigzag(bloc)
+    zigzag_string.append(zigzag(bloc))
 
     # Etape 6 huffman and RLE
-    blocs_stringY = ''.join([str(elem) for elem in bloc[0]])
-    blocs_stringCb = ''.join([str(elem) for elem in bloc[1]])
-    blocs_stringCr = ''.join([str(elem) for elem in bloc[2]])
-    #print(blocs_stringCr)
+    # blocs_stringY = ''.join([str(elem) for elem in bloc[0]])
+    # blocs_stringCb = ''.join([str(elem) for elem in bloc[1]])
+    # blocs_stringCr = ''.join([str(elem) for elem in bloc[2]])
+    # str_bloc = np.asarray(bloc).flatten().astype('str')
+    # str_bloc = ''.join(str_bloc)
+    # #print(blocs_stringCr)
+    # rleBlock = RLE.compress(str_bloc)
+    # rleBlock = str(int(rleBlock, 2))
+    # huffmanBlock = HuffmanCoding.compress(rleBlock)
+    # jpegImage.append(huffmanBlock)
 
-    huffBlock = HuffmanCoding.compress(blocs_stringY + blocs_stringCb + blocs_stringCr)
-    jpegImage.append(RLE.compress(huffBlock))
+rle_compress = RLE.compress(zigzag_string)
+rle_ascii =''
+for i in range(len(rle_compress)):
+    rle_ascii += chr((int(rle_compress[i], 2)))
+huffman_compress, dictionnaire = HuffmanCoding.compress(rle_ascii)
+print(len(huffman_compress))
 
-size = 0
-for blocs in jpegImage:
-    size += len(blocs)
-print(size)
+#Decompress
+
+
+
 
 #cv2.imshow("Normal", image)
 #cv2.imshow("YCC", YCCimage)

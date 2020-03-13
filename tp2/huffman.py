@@ -87,7 +87,7 @@ class HuffmanCoding():
         #print(MessageCode)
         #print("Longueur = {0}".format(longueur))
         #print("Longueur originale = {0}".format(longueurOriginale))
-        return MessageCode
+        return MessageCode, dictionnaire
 
     #source: https://stackoverflow.com/questions/33089660/decoding-a-huffman-code-with-a-dictionary
     def decompress(dictionary, text):
