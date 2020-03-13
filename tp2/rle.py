@@ -1,6 +1,8 @@
 import numpy as np
-
+import re
 class RLE():
+
+    #source : https://github.com/gabilodeau/INF8770/blob/master/Codage%20par%20plage.ipynb
     def compress(Message):
         compteur = 4  # La meilleure taille pour ce message est 4 bits. Plusieurs courtes répétitions
         dictsymb = [Message[0]]
@@ -38,4 +40,26 @@ class RLE():
             codebinaire = dictbin[dictsymb.index(carac)]
             MessageCode += [coderepetition, codebinaire]
             longueur += len(codebinaire) + len(coderepetition)
+
+
+    #source : https://exercism.io/tracks/python/exercises/run-length-encoding/solutions/b9efc25fffb046dba96b3705fe3c7ee7
+    def decompress(string):
+        if string == '':
+            return ''
+        multiplier = 1
+        count = 0
+        rle_decoding = []
+
+        rle_encoding = []
+        rle_encoding = re.findall(r'[A-Za-z]|-?\d+\.\d+|\d+|[\w\s]', string)
+        for item in rle_encoding:
+            if item.isdigit():
+                multiplier = int(item)
+            elif item.isalpha() or item.isspace():
+                while count < multiplier:
+                    rle_decoding.append('{0}'.format(item))
+                    count += 1
+                multiplier = 1
+                count = 0
+        return (''.join(rle_decoding))
 

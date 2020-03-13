@@ -4,6 +4,7 @@ from anytree import Node, RenderTree, PreOrderIter, AsciiStyle
 
 class HuffmanCoding():
 
+    #source : https://github.com/gabilodeau/INF8770/blob/master/Codage%20Huffman.ipynb
     def compress(Message):
         ArbreSymb = [[Message[0], Message.count(Message[0]), Node(Message[0])]]
         dictionnaire = [[Message[0], '']]
@@ -88,6 +89,7 @@ class HuffmanCoding():
         #print("Longueur originale = {0}".format(longueurOriginale))
         return MessageCode
 
+    #source: https://stackoverflow.com/questions/33089660/decoding-a-huffman-code-with-a-dictionary
     def decompress(dictionary, text):
         res = ""
         while text:
