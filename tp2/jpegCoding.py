@@ -4,6 +4,10 @@ import numpy as np
 from utils import *
 from huffman import HuffmanCoding
 from rle import *
+import scipy.fftpack as dctpack
+
+
+BLOCK_SIZE = 8
 
 QUANT = np.matrix('16 11 10 16 24 40 51 61;\
     12 12 14 19 26 58 60 55;\
@@ -23,16 +27,17 @@ initialeSize = sys.getsizeof(image)
 
 ## Etape 1: Transformation YC_rC_b
 image = cv2.cvtColor(image, cv2.COLOR_BGR2YCR_CB)
-cv2.imshow("YCC", image)
+cv2.imshow("canal Y", image[:,:,0])
+cv2.imshow("Ycc", image)
 
 
 # Etape 2 : echantillionage de l'image 4:2:0:
-# source : https://medium.com/@sddkal/chroma-subsampling-in-numpy-47bf2bb5af83
+# # source : https://medium.com/@sddkal/chroma-subsampling-in-numpy-47bf2bb5af83
 image[1::2] = image[::2, :]
 image[:, 1::2] = image[:, ::2]
 
 # img2 = image
-# chrominance(img2)
+# chrominance(image)
 
 cv2.imshow("Subsampling", image)
 # cv2.imshow("Subsampling- 2", img2)
@@ -42,14 +47,22 @@ blocs = blocks(image)
 
 print(sys.getsizeof(image))
 #Etape3 : Dct sur chaque block:
+image[:] -= 128
 for bloc in blocs:
-    bloc[:, :, 0] = cv2.dct(np.float32(bloc[:, :, 0]) / 255) * 255
-    bloc[:, :, 1] = cv2.dct(np.float32(bloc[:, :, 1]) / 255) * 255
-    bloc[:, :, 2] = cv2.dct(np.float32(bloc[:, :, 2]) / 255) * 255
+    # bloc[:, :, 0] = cv2.dct(np.float32(bloc[:, :, 0]) / 255) * 255
+    # bloc[:, :, 1] = cv2.dct(np.float32(bloc[:, :, 1]) / 255) * 255
+    # bloc[:, :, 2] = cv2.dct(np.float32(bloc[:, :, 2]) / 255) * 255
+    BlocDCT = dctpack.dct(dctpack.dct(bloc[:, :, 0], axis=0, norm='ortho'), axis=1, norm='ortho')
+    BlocDCT2 = dctpack.dct(dctpack.dct(bloc[:, :, 1], axis=0, norm='ortho'), axis=1, norm='ortho')
+    BlocDCT3 = dctpack.dct(dctpack.dct(bloc[:, :, 2], axis=0, norm='ortho'), axis=1, norm='ortho')
+    bloc[:, :, 0] = BlocDCT
+    bloc[:, :, 1] = BlocDCT2
+    bloc[:, :, 2] = BlocDCT3
 
 print(sys.getsizeof(blocs))
 
 jpegImage = []
+
 
 for bloc in blocs:
     #Etape 4 qunatification:
@@ -76,6 +89,6 @@ print(size)
 
 #cv2.imshow("Normal", image)
 #cv2.imshow("YCC", YCCimage)
-# cv2.waitKey()
+cv2.waitKey()
 
 
