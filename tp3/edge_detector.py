@@ -5,19 +5,30 @@ kernel = np.ones((5, 5), np.uint8)
 
 
 def calculate_incoming_edge(previous_dilate, current_edges):
-	num = np.sum(previous_dilate * current_edges)
+	num = 0
+	previous_dilate =previous_dilate.clip(max=1)
+	current_edges = current_edges.clip(max=1)
+	for i in range(len(previous_dilate)):
+		for j in range(len(previous_dilate[i])):
+			num += previous_dilate[i][j] * current_edges[i][j]
 	denum = np.sum(current_edges)
 	return 1 - (num / denum)
 
 
 def calculate_outcoming_edge(current_dilate, previous_edges):
-	num = np.sum(previous_edges * current_dilate)
+	num = 0
+	previous_edges = previous_edges.clip(max=1)
+	current_dilate = current_dilate.clip(max=1)
+	for i in range(len(previous_edges)):
+		for j in range(len(previous_edges[i])):
+			num += previous_edges[i][j] * current_dilate[i][j]
 	denum = np.sum(previous_edges)
 	return 1 - (num / denum)
 
 
 def edge_detector(img):
 	edges = cv2.Canny(img,100,200)
+	cv2.subtract(0, img)
 	cv2.imshow('edges', edges)
 	return edges
 
@@ -40,6 +51,8 @@ def process_video(file: str):
 	cap = cv2.VideoCapture(file)
 	indextrame = 0
 
+
+
 	while(True):
 		ret, frame = cap.read()
 		if ret:
@@ -47,9 +60,13 @@ def process_video(file: str):
 			cv2.imshow("frame", frame)
 			edges = edge_detector(frame)
 			dilate = dilate_image(edges)
-			# if(indextrame>0):
-			# 	incoming_edge = calculate_incoming_edge(previous_dilate, edges)
-			# 	outcoming_edge = calculate_outcoming_edge(dilate, previous_edges)
+			if(indextrame>0):
+				incoming_edge = calculate_incoming_edge(previous_dilate, edges)
+				outcoming_edge = calculate_outcoming_edge(dilate, previous_edges)
+				print(incoming_edge)
+				print(outcoming_edge)
+				print()
+
 
 			previous_edges = edges
 			previous_dilate = dilate
