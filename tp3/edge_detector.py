@@ -1,16 +1,13 @@
 import cv2
 import numpy as np
-
+import matplotlib.pyplot as plt
 kernel = np.ones((5, 5), np.uint8)
 
 
 def calculate_incoming_edge(previous_dilate, current_edges):
-	num = 0
 	previous_dilate =previous_dilate.clip(max=1)
 	current_edges = current_edges.clip(max=1)
-	for i in range(len(previous_dilate)):
-		for j in range(len(previous_dilate[i])):
-			num += previous_dilate[i][j] * current_edges[i][j]
+	num = np.sum(np.multiply(previous_dilate,current_edges))
 	denum = np.sum(current_edges)
 	return 1 - (num / denum)
 
@@ -19,9 +16,7 @@ def calculate_outcoming_edge(current_dilate, previous_edges):
 	num = 0
 	previous_edges = previous_edges.clip(max=1)
 	current_dilate = current_dilate.clip(max=1)
-	for i in range(len(previous_edges)):
-		for j in range(len(previous_edges[i])):
-			num += previous_edges[i][j] * current_dilate[i][j]
+	num = np.sum(np.multiply(previous_edges, current_dilate))
 	denum = np.sum(previous_edges)
 	return 1 - (num / denum)
 
@@ -48,10 +43,10 @@ Output:
 def process_video(file: str):
 	cut=[]
 	grad=[]
+	in_edges = []
+	out_edges = []
 	cap = cv2.VideoCapture(file)
 	indextrame = 0
-
-
 
 	while(True):
 		ret, frame = cap.read()
@@ -60,13 +55,11 @@ def process_video(file: str):
 			cv2.imshow("frame", frame)
 			edges = edge_detector(frame)
 			dilate = dilate_image(edges)
-			if(indextrame>0):
+			if indextrame>0 :
 				incoming_edge = calculate_incoming_edge(previous_dilate, edges)
 				outcoming_edge = calculate_outcoming_edge(dilate, previous_edges)
-				print(incoming_edge)
-				print(outcoming_edge)
-				print()
-
+				in_edges.append(incoming_edge)
+				out_edges.append(outcoming_edge)
 
 			previous_edges = edges
 			previous_dilate = dilate
@@ -76,6 +69,11 @@ def process_video(file: str):
 				break
 		else:
 			break
+	plt.plot(in_edges, label = "Arretes entrentes")
+	plt.plot(out_edges, label = "Arretes sortantes")
+	plt.xlabel("Frame number")
+	plt.legend()
+	plt.show()
 
 	cap.release()
 	cv2.destroyAllWindows()
