@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 kernel = np.ones((5, 5), np.uint8)
 
-
 def calculate_incoming_edge(previous_dilate, current_edges):
 	previous_dilate =previous_dilate.clip(max=1)
 	current_edges = current_edges.clip(max=1)
@@ -46,8 +45,11 @@ def process_video(file: str):
 	in_edges = []
 	out_edges = []
 	cap = cv2.VideoCapture(file)
-	indextrame = 0
-
+	indextrame = 1
+	transition = ""
+	trame_init = 0
+	trame_final = 0
+	compteur = 0
 	while(True):
 		ret, frame = cap.read()
 		if ret:
@@ -55,11 +57,38 @@ def process_video(file: str):
 			cv2.imshow("frame", frame)
 			edges = edge_detector(frame)
 			dilate = dilate_image(edges)
-			if indextrame>0 :
+			if indextrame > 1:
 				incoming_edge = calculate_incoming_edge(previous_dilate, edges)
 				outcoming_edge = calculate_outcoming_edge(dilate, previous_edges)
 				in_edges.append(incoming_edge)
 				out_edges.append(outcoming_edge)
+				pic = max(incoming_edge, outcoming_edge)
+				# if 0.2 >= pic:
+				# 	if (transition== "" and incoming_edge > outcoming_edge):
+				# 		transition ="fondu"
+				# 		trame_init = indextrame
+				# 	elif(transition=="fondu" and incoming_edge < outcoming_edge):
+				# 		trame_final = indextrame
+				#
+				# elif 0.2 > pic and transition== "fondu":
+				# 	transition = ""
+				# 	trame_final = indextrame
+				# 	grad.append([trame_init, trame_final])
+
+
+				if pic >= 0.5 and transition == "":
+					transition = "coupure"
+					trame_init = indextrame
+
+				elif pic < 0.5 and transition == "coupure":
+					compteur += 1
+					cut.append(trame_init)
+					print(str(compteur) + ": " + str(trame_init))
+					transition = ""
+
+
+
+
 
 			previous_edges = edges
 			previous_dilate = dilate
@@ -74,7 +103,6 @@ def process_video(file: str):
 	plt.xlabel("Frame number")
 	plt.legend()
 	plt.show()
-
 	cap.release()
 	cv2.destroyAllWindows()
 	return cut, grad
@@ -87,6 +115,7 @@ Output:
 - cut: vector of frame indices where cuts happen
 - grad: vector of tuples (start, end) of frame indices where gradations happen
 """
+
 def read_groundtruth(file: str):
 	cut=[]
 	grad=[]
